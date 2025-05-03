@@ -12,6 +12,14 @@ class AddStoryPresenter {
 
   async addStory(description, photo) {
     try {
+      // Log data untuk debugging
+      console.log("AddStoryPresenter.addStory - description:", description);
+      console.log("AddStoryPresenter.addStory - photo:", photo);
+      console.log(
+        "AddStoryPresenter.addStory - location:",
+        this.#selectedLocation
+      );
+
       // Validate all required fields
       if (!this._validateAllFields(description, photo)) {
         return;
@@ -20,6 +28,12 @@ class AddStoryPresenter {
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("Token not found");
+      }
+
+      // Validasi photo secara eksplisit
+      if (!(photo instanceof File)) {
+        console.error("Photo is not a File object:", photo);
+        throw new Error("Format foto tidak valid");
       }
 
       const data = {
@@ -32,7 +46,17 @@ class AddStoryPresenter {
         data.lon = this.#selectedLocation.lng;
       }
 
+      // Log data yang akan dikirim untuk debugging
+      console.log("Sending story data to API:", {
+        description: data.description,
+        photoName: data.photo.name,
+        photoSize: data.photo.size,
+        photoType: data.photo.type,
+        location: this.#selectedLocation ? `${data.lat}, ${data.lon}` : "none",
+      });
+
       const response = await StoryAPI.addStory(data, token);
+      console.log("API response:", response);
 
       if (response.error) {
         throw new Error(response.message);
@@ -48,6 +72,7 @@ class AddStoryPresenter {
 
       window.location.hash = "#/stories";
     } catch (error) {
+      console.error("Error in addStory:", error);
       await Swal.fire({
         icon: "error",
         title: "Gagal Menambahkan Cerita",
@@ -61,6 +86,10 @@ class AddStoryPresenter {
   }
 
   _validateAllFields(description, photo) {
+    console.log("Validating fields - description:", !!description);
+    console.log("Validating fields - photo:", !!photo);
+    console.log("Validating fields - location:", !!this.#selectedLocation);
+
     const missingFields = [];
 
     if (!description || description.trim().length === 0) {
@@ -69,6 +98,9 @@ class AddStoryPresenter {
 
     if (!photo) {
       missingFields.push("foto");
+    } else if (!(photo instanceof File)) {
+      console.error("Photo is not a File object:", photo);
+      missingFields.push("foto (format tidak valid)");
     }
 
     if (!this.#selectedLocation) {
@@ -76,6 +108,7 @@ class AddStoryPresenter {
     }
 
     if (missingFields.length > 0) {
+      console.warn("Missing fields:", missingFields);
       Swal.fire({
         icon: "warning",
         title: "Data Belum Lengkap",
@@ -89,6 +122,8 @@ class AddStoryPresenter {
 
   async startCamera() {
     try {
+      console.log("Starting camera...");
+
       // Stop any existing stream first
       await this.stopCamera();
 
@@ -96,27 +131,40 @@ class AddStoryPresenter {
         video: true,
         audio: false,
       });
+
+      console.log("Camera started successfully:", this.#stream);
       return this.#stream;
     } catch (error) {
+      console.error("Error starting camera:", error);
       throw new Error("Tidak dapat mengakses kamera");
     }
   }
 
   async stopCamera() {
     if (this.#stream) {
+      console.log("Stopping camera...");
+
       // Stop all tracks in the stream
       const tracks = this.#stream.getTracks();
       tracks.forEach((track) => {
         track.stop();
-        this.#stream.removeTrack(track);
       });
+
       this.#stream = null;
+      console.log("Camera stopped");
       return true;
     }
     return false;
   }
 
   validateImage(file) {
+    console.log("Validating image:", file);
+
+    // Check if it's a file
+    if (!(file instanceof File)) {
+      throw new Error("File tidak valid");
+    }
+
     // Check file type
     if (!file.type.startsWith("image/")) {
       throw new Error("File harus berupa gambar");
@@ -126,9 +174,13 @@ class AddStoryPresenter {
     if (file.size > 1024 * 1024) {
       throw new Error("Ukuran file tidak boleh lebih dari 1MB");
     }
+
+    console.log("Image validation passed");
+    return true;
   }
 
   setSelectedLocation(location) {
+    console.log("Location selected:", location);
     this.#selectedLocation = location;
   }
 

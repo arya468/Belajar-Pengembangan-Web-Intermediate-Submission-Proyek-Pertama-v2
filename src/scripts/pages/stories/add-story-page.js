@@ -65,8 +65,7 @@ class AddStoryPage {
                     id="photo" 
                     name="photo" 
                     accept="image/*" 
-                    class="file-input" 
-                    required
+                    class="file-input"
                   >
                 </div>
                 <p class="file-help">Format: JPG, PNG, GIF (max. 1MB)</p>
@@ -124,6 +123,14 @@ class AddStoryPage {
 
     let photoFile = null;
 
+    // Log DOM elements for debugging
+    console.log("DOM Elements:");
+    console.log("- form:", !!form);
+    console.log("- cameraPreview:", !!cameraPreview);
+    console.log("- photoCanvas:", !!photoCanvas);
+    console.log("- fileInput:", !!fileInput);
+    console.log("- mapContainer:", !!mapContainer);
+
     // Initialize map with interactive mode enabled
     this.#map = MapHelper.initMap(mapContainer, true);
 
@@ -170,8 +177,22 @@ class AddStoryPage {
     // Camera handling
     startCameraBtn.addEventListener("click", async () => {
       try {
+        console.log("Starting camera...");
         const stream = await this.#presenter.startCamera();
+        console.log("Camera stream obtained:", stream);
+
+        if (!stream) {
+          throw new Error("Tidak dapat mendapatkan akses kamera");
+        }
+
         cameraPreview.srcObject = stream;
+        await cameraPreview.play();
+
+        console.log("Camera preview dimensions:", {
+          width: cameraPreview.videoWidth,
+          height: cameraPreview.videoHeight,
+        });
+
         cameraPreview.style.display = "block";
         startCameraBtn.style.display = "none";
         closeCameraBtn.style.display = "block";
@@ -185,33 +206,84 @@ class AddStoryPage {
     });
 
     closeCameraBtn.addEventListener("click", async () => {
+      console.log("Closing camera...");
       await this.#presenter.stopCamera();
+      cameraPreview.srcObject = null;
       cameraPreview.style.display = "none";
       closeCameraBtn.style.display = "none";
       capturePhotoBtn.style.display = "none";
       startCameraBtn.style.display = "block";
     });
 
-    capturePhotoBtn.addEventListener("click", () => {
-      // Set canvas dimensions to match video
-      photoCanvas.width = cameraPreview.videoWidth;
-      photoCanvas.height = cameraPreview.videoHeight;
+    capturePhotoBtn.addEventListener("click", async () => {
+      console.log("Capturing photo...");
 
-      // Draw video frame to canvas
-      const context = photoCanvas.getContext("2d");
-      context.drawImage(
-        cameraPreview,
-        0,
-        0,
-        photoCanvas.width,
-        photoCanvas.height
-      );
+      try {
+        // Validasi video stream
+        if (!cameraPreview.srcObject || !cameraPreview.videoWidth) {
+          console.error("Video stream not ready");
+          throw new Error("Kamera belum siap. Coba lagi.");
+        }
 
-      // Convert canvas to file
-      photoCanvas.toBlob((blob) => {
-        photoFile = new File([blob], "camera-photo.jpg", {
-          type: "image/jpeg",
+        // Set canvas dimensions to match video
+        photoCanvas.width = cameraPreview.videoWidth;
+        photoCanvas.height = cameraPreview.videoHeight;
+
+        console.log("Canvas dimensions set to:", {
+          width: photoCanvas.width,
+          height: photoCanvas.height,
         });
+
+        // Draw video frame to canvas
+        const context = photoCanvas.getContext("2d");
+        context.drawImage(
+          cameraPreview,
+          0,
+          0,
+          photoCanvas.width,
+          photoCanvas.height
+        );
+
+        console.log("Video frame drawn to canvas");
+
+        // Convert canvas to file using Promise for better error handling
+        photoFile = await new Promise((resolve, reject) => {
+          photoCanvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error("Gagal mengambil foto dari kamera"));
+                return;
+              }
+
+              const file = new File([blob], "camera-photo.jpg", {
+                type: "image/jpeg",
+                lastModified: Date.now(),
+              });
+
+              console.log("Photo blob created:", {
+                size: blob.size,
+                type: blob.type,
+              });
+              console.log("Photo file created:", {
+                name: file.name,
+                size: file.size,
+                type: file.type,
+              });
+
+              resolve(file);
+            },
+            "image/jpeg",
+            0.9
+          ); // Kualitas 90%
+        });
+
+        // Validasi hasil foto
+        if (!photoFile || photoFile.size === 0) {
+          throw new Error("Gagal mengambil foto dari kamera");
+        }
+
+        // Validasi ukuran file
+        this.#presenter.validateImage(photoFile);
 
         // Show preview
         previewImage.src = URL.createObjectURL(photoFile);
@@ -225,18 +297,25 @@ class AddStoryPage {
         retakePhotoBtn.style.display = "block";
 
         // Stop the camera since we have our photo
-        this.#presenter.stopCamera();
+        await this.#presenter.stopCamera();
 
         // Update status
         updateStatusIndicators();
-      }, "image/jpeg");
+
+        console.log("Photo capture completed successfully");
+      } catch (error) {
+        console.error("Error capturing photo:", error);
+        alert(`Gagal mengambil foto: ${error.message}`);
+      }
     });
 
     retakePhotoBtn.addEventListener("click", async () => {
       try {
+        console.log("Retaking photo...");
         // Start camera again for retaking photo
         const stream = await this.#presenter.startCamera();
         cameraPreview.srcObject = stream;
+        await cameraPreview.play();
 
         // Reset UI for new capture
         cameraPreview.style.display = "block";
@@ -259,11 +338,23 @@ class AddStoryPage {
 
     // File upload handling
     fileInput.addEventListener("change", async (e) => {
+      console.log("File input changed");
       const file = e.target.files[0];
-      if (!file) return;
+      if (!file) {
+        console.log("No file selected");
+        return;
+      }
 
       try {
+        console.log("Selected file:", {
+          name: file.name,
+          size: file.size,
+          type: file.type,
+        });
+
+        // Validasi file
         this.#presenter.validateImage(file);
+
         photoFile = file;
         previewImage.src = URL.createObjectURL(file);
         imagePreview.style.display = "inline-block";
@@ -279,21 +370,29 @@ class AddStoryPage {
 
         // Update status
         updateStatusIndicators();
+
+        console.log("File selected successfully");
       } catch (error) {
+        console.error("File validation error:", error);
         alert(error.message);
         fileInput.value = "";
       }
     });
 
     removeImageBtn.addEventListener("click", () => {
+      console.log("Removing image...");
+
       photoFile = null;
       fileInput.value = "";
       imagePreview.style.display = "none";
       updateStatusIndicators();
+
+      console.log("Image removed");
     });
 
     // Map location selection handler
     mapContainer.addEventListener("locationselected", (e) => {
+      console.log("Location selected:", e.detail);
       this.#presenter.setSelectedLocation(e.detail);
       updateStatusIndicators();
     });
@@ -301,12 +400,46 @@ class AddStoryPage {
     // Form submission
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const description = document.getElementById("description").value;
-      await this.#presenter.addStory(description, photoFile);
+      console.log("Form submitted");
+
+      // Disable form elements during submission
+      const submitButton = form.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      submitButton.innerHTML =
+        '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+
+      try {
+        const description = document.getElementById("description").value;
+
+        console.log("Submitting story:");
+        console.log("- description:", description);
+        console.log(
+          "- photo:",
+          photoFile
+            ? {
+                name: photoFile.name,
+                size: photoFile.size,
+                type: photoFile.type,
+              }
+            : "null"
+        );
+
+        await this.#presenter.addStory(description, photoFile);
+      } catch (error) {
+        console.error("Form submission error:", error);
+        alert(`Gagal mengirim cerita: ${error.message}`);
+      } finally {
+        // Re-enable form elements
+        submitButton.disabled = false;
+        submitButton.innerHTML =
+          '<i class="fas fa-paper-plane"></i> Tambah Cerita';
+      }
     });
   }
 
   async destroy() {
+    console.log("Destroying AddStoryPage component");
+
     // Clean up map
     if (this.#map) {
       this.#map.remove();
@@ -315,6 +448,8 @@ class AddStoryPage {
 
     // Ensure camera is stopped when navigating away
     await this.#presenter.stopCamera();
+
+    console.log("AddStoryPage destroyed");
   }
 }
 
