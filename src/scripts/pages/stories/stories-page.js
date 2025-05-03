@@ -13,9 +13,10 @@ class StoriesPage {
 
   async render() {
     return `
+      <!-- Skip to content link -->
+      <a href="#mainContent" class="skip-to-content">Lewati ke konten utama</a>
       
-      
-      <section id="mainContent" class="stories container">
+      <section id="mainContent" class="stories container" tabindex="-1">
         <h1 class="stories__title">Lihat Cerita</h1>
         
         <div id="stories" class="stories__list"></div>
@@ -95,6 +96,12 @@ class StoriesPage {
       const currentPage = this.#presenter.getCurrentPage();
       await loadStories(currentPage + 1);
     });
+
+    // Ensure focus management if coming from skip link
+    const mainContent = document.getElementById("mainContent");
+    if (mainContent && window.location.hash === "#mainContent") {
+      mainContent.focus();
+    }
   }
 
   _createStoryCard(story) {

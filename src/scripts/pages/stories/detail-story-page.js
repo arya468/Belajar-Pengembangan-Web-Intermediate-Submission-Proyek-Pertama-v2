@@ -20,10 +20,13 @@ class DetailStoryPage {
 
   async render() {
     return `
+      <!-- Skip to content link -->
+      <a href="#main-content" class="skip-to-content">Lewati ke konten utama</a>
+      
       <section class="detail-story container">
         <a href="#/stories" class="back-button">&laquo; Kembali ke Daftar Cerita</a>
         <div id="storyContent" class="detail-story__content">
-          <div class="loading">Memuat...</div>
+          <div id="main-content" class="loading" tabindex="-1">Memuat...</div>
         </div>
       </section>
     `;
@@ -38,7 +41,9 @@ class DetailStoryPage {
       const story = await this.#presenter.getStoryDetail(storyId);
 
       contentContainer.innerHTML = `
-        <h1 class="detail-story__title">${story.name}</h1>
+        <h1 id="main-content" class="detail-story__title" tabindex="-1">${
+          story.name
+        }</h1>
         <p class="detail-story__date">${showFormattedDate(story.createdAt)}</p>
        
         <img
@@ -55,10 +60,10 @@ class DetailStoryPage {
           <div class="detail-story__map-container">
             <h2>Lokasi</h2>
             <div class="detail-story__coordinates">
-              <i class="fas fa-map-pin"></i> 
+              <i class="fas fa-map-pin"></i>
               Latitude: <span class="coordinate-value">${story.lat.toFixed(
                 6
-              )}</span>, 
+              )}</span>,
               Longitude: <span class="coordinate-value">${story.lon.toFixed(
                 6
               )}</span>
@@ -81,9 +86,15 @@ class DetailStoryPage {
           this.#defaultIcon
         );
       }
+
+      // Ensure focus management if coming from skip link
+      const mainContent = document.getElementById("main-content");
+      if (mainContent && window.location.hash.includes("#main-content")) {
+        mainContent.focus();
+      }
     } catch (error) {
       contentContainer.innerHTML = `
-        <div class="error-message">
+        <div id="main-content" class="error-message" tabindex="-1">
           Gagal memuat cerita. ${error.message}
         </div>
       `;

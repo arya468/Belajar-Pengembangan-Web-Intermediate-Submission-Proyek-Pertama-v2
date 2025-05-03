@@ -11,8 +11,11 @@ class AddStoryPage {
 
   async render() {
     return `
+      <!-- Skip to content link -->
+      <a href="#main-content" class="skip-to-content">Lewati ke konten utama</a>
+      
       <section class="add-story container">
-        <h1 class="add-story__title"><i class="fas fa-plus-circle"></i>Tambah Cerita</h1>
+        <h1 id="main-content" class="add-story__title"><i class="fas fa-plus-circle"></i>Tambah Cerita</h1>
         
         <form id="addStoryForm" class="add-story__form">
           <div class="form-group">

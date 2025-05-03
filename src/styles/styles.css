@@ -8,6 +8,40 @@
   --text-light: #a7e6ff;
 }
 
+/* Skip to content styles - untuk semua halaman */
+.skip-to-content {
+  position: absolute;
+  top: -50px;
+  left: 0;
+  padding: 8px 15px;
+  background-color: #0057b8;
+  color: #ffffff;
+  font-weight: bold;
+  text-decoration: none;
+  z-index: 9999;
+  transition: top 0.3s;
+  border-radius: 0 0 5px 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.skip-to-content:focus {
+  top: 0;
+  outline: 2px solid #ffb600; /* High contrast outline */
+}
+
+/* Add focus styles for the target elements when they're focused via skip link */
+#mainContent:focus,
+#main-content:focus {
+  outline: 2px solid #ffb600;
+  outline-offset: 2px;
+}
+
+/* Make sure the target elements are focusable */
+#mainContent,
+#main-content {
+  scroll-margin-top: 20px; /* Creates space when scrolling to this element */
+}
+
 /* Base styles */
 body {
   font-family: "Poppins", sans-serif;
@@ -383,6 +417,7 @@ header {
   text-decoration: none;
   box-shadow: 0 4px 12px rgba(33, 52, 72, 0.2);
   transition: transform 0.3s ease;
+  z-index: 1001;
 }
 
 .floating-button:hover {

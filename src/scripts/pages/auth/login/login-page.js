@@ -9,43 +9,46 @@ class LoginPage {
 
   async render() {
     return `
-      <section class="auth">
+      <!-- Skip to content link -->
+      <a href="#mainContent" class="skip-to-content">Skip to content</a>
+      
+      <section class="auth" id="mainContent">
         <h1 class="auth__title">Login</h1>
-        
+       
         <form class="auth__form" id="loginForm">
           <div class="form-group">
             <label for="email">
               <i class="fas fa-envelope"></i> Email
             </label>
-            <input 
-              type="email" 
-              id="email" 
-              name="email" 
+            <input
+              type="email"
+              id="email"
+              name="email"
               required
               autocomplete="email"
             >
           </div>
-
+ 
           <div class="form-group">
             <label for="password">
               <i class="fas fa-lock"></i> Password
             </label>
-            <input 
-              type="password" 
-              id="password" 
-              name="password" 
+            <input
+              type="password"
+              id="password"
+              name="password"
               required
               autocomplete="current-password"
             >
           </div>
-
+ 
           <div class="spinner"></div>
-          
+         
           <button type="submit" class="submit-button">
             <i class="fas fa-sign-in-alt"></i> Login
           </button>
         </form>
-
+ 
         <p class="auth__link">
           Belum punya akun? <a href="#/register">Register</a>
         </p>
