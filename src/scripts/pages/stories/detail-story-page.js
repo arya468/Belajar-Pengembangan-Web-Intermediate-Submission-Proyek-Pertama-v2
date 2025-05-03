@@ -40,20 +40,29 @@ class DetailStoryPage {
       contentContainer.innerHTML = `
         <h1 class="detail-story__title">${story.name}</h1>
         <p class="detail-story__date">${showFormattedDate(story.createdAt)}</p>
-        
-        <img 
-          src="${story.photoUrl}" 
-          alt="Foto dari ${story.name}" 
+       
+        <img
+          src="${story.photoUrl}"
+          alt="Foto dari ${story.name}"
           class="detail-story__image"
         >
-        
+       
         <p class="detail-story__description">${story.description}</p>
-        
+       
         ${
           story.lat && story.lon
             ? `
           <div class="detail-story__map-container">
             <h2>Lokasi</h2>
+            <div class="detail-story__coordinates">
+              <i class="fas fa-map-pin"></i> 
+              Latitude: <span class="coordinate-value">${story.lat.toFixed(
+                6
+              )}</span>, 
+              Longitude: <span class="coordinate-value">${story.lon.toFixed(
+                6
+              )}</span>
+            </div>
             <div id="map" class="detail-story__map"></div>
           </div>
         `
@@ -85,8 +94,15 @@ class DetailStoryPage {
     return `
       <div class="popup-content">
         <h3>${story.name}</h3>
-        <img src="${story.photoUrl}" alt="Foto dari ${story.name}" style="max-width: 200px;">
+        <img src="${story.photoUrl}" alt="Foto dari ${
+      story.name
+    }" style="max-width: 200px;">
         <p>${story.description}</p>
+        <div class="popup-coordinates">
+          <strong>Koordinat:</strong><br>
+          Lat: ${story.lat.toFixed(6)}<br>
+          Lng: ${story.lon.toFixed(6)}
+        </div>
       </div>
     `;
   }

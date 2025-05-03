@@ -16,6 +16,23 @@ class AddStoryPage {
         
         <form id="addStoryForm" class="add-story__form">
           <div class="form-group">
+
+          <div class="form-group">
+            <label>
+              <i class="fas fa-map-marker-alt"></i> Lokasi <span class="required">*</span>
+            </label>
+            <div id="map" class="add-story__map"></div>
+            <p class="map-help">
+              <i class="fas fa-info-circle"></i> Klik pada peta untuk menandai lokasi
+            </p>
+            <div id="coordinateDisplay" class="coordinate-display" style="display: none;">
+              <i class="fas fa-map-pin"></i> 
+              Latitude: <span id="latitudeValue">-</span>, 
+              Longitude: <span id="longitudeValue">-</span>
+            </div>
+            <small id="locationStatus" class="form-help"></small>
+          </div>
+
             <label for="description">
               <i class="fas fa-pencil-alt"></i> Cerita Anda <span class="required">*</span>
             </label>
@@ -78,17 +95,6 @@ class AddStoryPage {
               </div>
             </div>
           </div>
-
-          <div class="form-group">
-            <label>
-              <i class="fas fa-map-marker-alt"></i> Lokasi <span class="required">*</span>
-            </label>
-            <div id="map" class="add-story__map"></div>
-            <p class="map-help">
-              <i class="fas fa-info-circle"></i> Klik pada peta untuk menandai lokasi
-            </p>
-            <small id="locationStatus" class="form-help"></small>
-          </div>
           
           <button type="submit" class="submit-button">
             <i class="fas fa-paper-plane"></i> Tambah Cerita
@@ -116,6 +122,11 @@ class AddStoryPage {
     const removeImageBtn = document.getElementById("removeImage");
     const mapContainer = document.getElementById("map");
 
+    // Coordinate display elements
+    const coordinateDisplay = document.getElementById("coordinateDisplay");
+    const latitudeValue = document.getElementById("latitudeValue");
+    const longitudeValue = document.getElementById("longitudeValue");
+
     // Status elements
     const descriptionStatus = document.getElementById("descriptionStatus");
     const photoStatus = document.getElementById("photoStatus");
@@ -130,6 +141,7 @@ class AddStoryPage {
     console.log("- photoCanvas:", !!photoCanvas);
     console.log("- fileInput:", !!fileInput);
     console.log("- mapContainer:", !!mapContainer);
+    console.log("- coordinateDisplay:", !!coordinateDisplay);
 
     // Initialize map with interactive mode enabled
     this.#map = MapHelper.initMap(mapContainer, true);
@@ -393,6 +405,13 @@ class AddStoryPage {
     // Map location selection handler
     mapContainer.addEventListener("locationselected", (e) => {
       console.log("Location selected:", e.detail);
+
+      // Display coordinates when location is selected
+      const { lat, lng } = e.detail;
+      latitudeValue.textContent = lat.toFixed(6);
+      longitudeValue.textContent = lng.toFixed(6);
+      coordinateDisplay.style.display = "block";
+
       this.#presenter.setSelectedLocation(e.detail);
       updateStatusIndicators();
     });
