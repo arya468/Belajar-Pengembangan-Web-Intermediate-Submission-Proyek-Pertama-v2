@@ -8,10 +8,7 @@ class RegisterPage {
   }
 
   async render() {
-    return `
-      <!-- Skip to content link -->
-      <a href="#mainContent" class="skip-to-content">Langsung ke konten</a>
-      
+    return `     
       <section class="auth container" id="mainContent">
         <h1 class="auth__title"><i class="fas fa-user-plus"></i> Register</h1>
        

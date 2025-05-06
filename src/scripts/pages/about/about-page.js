@@ -1,8 +1,6 @@
 export default class AboutPage {
   async render() {
     return `
-      <div class="skip-link">
-        <a href="#mainContent" class="skip-to-content">Lewati ke konten utama</a>
       </div>
 
       <section id="mainContent" class="about container">

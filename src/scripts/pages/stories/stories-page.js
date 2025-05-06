@@ -12,10 +12,7 @@ class StoriesPage {
   }
 
   async render() {
-    return `
-      <!-- Skip to content link -->
-      <a href="#mainContent" class="skip-to-content">Lewati ke konten utama</a>
-      
+    return `      
       <section id="mainContent" class="stories container" tabindex="-1">
         <h1 class="stories__title">Lihat Cerita</h1>
         

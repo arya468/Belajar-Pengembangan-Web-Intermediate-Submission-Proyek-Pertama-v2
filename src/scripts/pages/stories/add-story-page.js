@@ -10,10 +10,7 @@ class AddStoryPage {
   }
 
   async render() {
-    return `
-      <!-- Skip to content link -->
-      <a href="#main-content" class="skip-to-content">Lewati ke konten utama</a>
-      
+    return `      
       <section class="add-story container">
         <h1 id="main-content" class="add-story__title"><i class="fas fa-plus-circle"></i>Tambah Cerita</h1>
         
@@ -234,7 +231,7 @@ class AddStoryPage {
       console.log("Capturing photo...");
 
       try {
-        // Validasi video stream
+        // Video stream validation
         if (!cameraPreview.srcObject || !cameraPreview.videoWidth) {
           console.error("Video stream not ready");
           throw new Error("Kamera belum siap. Coba lagi.");
@@ -289,15 +286,15 @@ class AddStoryPage {
             },
             "image/jpeg",
             0.9
-          ); // Kualitas 90%
+          ); // 90% quality
         });
 
-        // Validasi hasil foto
+        // Validation of photo results
         if (!photoFile || photoFile.size === 0) {
           throw new Error("Gagal mengambil foto dari kamera");
         }
 
-        // Validasi ukuran file
+        // File size validation
         this.#presenter.validateImage(photoFile);
 
         // Show preview
@@ -367,7 +364,7 @@ class AddStoryPage {
           type: file.type,
         });
 
-        // Validasi file
+        // File validation
         this.#presenter.validateImage(file);
 
         photoFile = file;

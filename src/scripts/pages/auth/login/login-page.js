@@ -9,9 +9,6 @@ class LoginPage {
 
   async render() {
     return `
-      <!-- Skip to content link -->
-      <a href="#mainContent" class="skip-to-content">Skip to content</a>
-      
       <section class="auth" id="mainContent">
         <h1 class="auth__title">Login</h1>
        
