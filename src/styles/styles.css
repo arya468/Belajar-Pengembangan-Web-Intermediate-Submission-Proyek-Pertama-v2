@@ -1175,3 +1175,102 @@ header {
   opacity: 0.7;
   pointer-events: none;
 }
+
+.offline-message {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 12px;
+  margin: 16px 0;
+  border-radius: 4px;
+  border: 1px solid #ffeeba;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.offline-message i {
+  font-size: 1.2em;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 12px;
+  margin: 16px 0;
+  border-radius: 4px;
+  border: 1px solid #f5c6cb;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.error-message i {
+  font-size: 1.2em;
+}
+
+/* Notification Button */
+.notification-button {
+  background: var(--primary-medium);
+  color: var(--text-light);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.notification-button:hover {
+  background: var(--primary-dark);
+}
+
+.notification-button.subscribed {
+  background: #22c55e;
+}
+
+.notification-button.subscribed:hover {
+  background: #16a34a;
+}
+
+.notification-button i {
+  font-size: 1.1em;
+}
+
+/* Toast Messages */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 24px;
+  border-radius: 4px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9em;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.toast--success {
+  background-color: #22c55e;
+}
+
+.toast--error {
+  background-color: #ef4444;
+}
+
+.toast i {
+  font-size: 1.2em;
+}

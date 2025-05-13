@@ -18,6 +18,7 @@
     />
 
     <link rel="shortcut icon" href="favicon.png" />
+    <link rel="manifest" href="/public/manifest.json" />
     <title>Story App</title>
     <script
       src="https://kit.fontawesome.com/c47a0b9424.js"
@@ -44,5 +45,20 @@
     </header>
 
     <main id="main-content" class="main-content"></main>
+
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/sw.js")
+            .then((registration) => {
+              console.log("ServiceWorker registration successful");
+            })
+            .catch((err) => {
+              console.log("ServiceWorker registration failed: ", err);
+            });
+        });
+      }
+    </script>
   </body>
 </html>

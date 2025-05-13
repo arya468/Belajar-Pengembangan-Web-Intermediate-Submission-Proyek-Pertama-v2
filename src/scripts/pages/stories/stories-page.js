@@ -1,4 +1,4 @@
-import StoriesPresenter from "./stories-presenter";
+import StoryPresenter from "./story-presenter";
 import { showFormattedDate } from "../../utils";
 import MapHelper from "../../utils/map-helper";
 
@@ -8,13 +8,17 @@ class StoriesPage {
   #markers = [];
 
   constructor() {
-    this.#presenter = new StoriesPresenter(this);
+    this.#presenter = new StoryPresenter(this);
   }
 
   async render() {
     return `      
       <section id="mainContent" class="stories container" tabindex="-1">
         <h1 class="stories__title">Lihat Cerita</h1>
+        
+        <div id="offlineMessage" class="offline-message" style="display: none;">
+          <i class="fas fa-wifi-slash"></i> Anda sedang offline. Menampilkan data dari penyimpanan lokal.
+        </div>
         
         <div id="stories" class="stories__list"></div>
         
@@ -34,11 +38,27 @@ class StoriesPage {
   }
 
   async afterRender() {
+    await this.#presenter.init();
+    await this.#presenter.loadStories();
+
+    const prevButton = document.getElementById("prevPage");
+    const nextButton = document.getElementById("nextPage");
+    const pageInfo = document.getElementById("pageInfo");
+
+    prevButton.addEventListener("click", () => {
+      const currentPage = parseInt(pageInfo.textContent.split(" ")[1]);
+      if (currentPage > 1) {
+        this.#presenter.setPage(currentPage - 1);
+      }
+    });
+
+    nextButton.addEventListener("click", () => {
+      const currentPage = parseInt(pageInfo.textContent.split(" ")[1]);
+      this.#presenter.setPage(currentPage + 1);
+    });
+
     const storiesContainer = document.querySelector("#stories");
     const mapContainer = document.querySelector("#map");
-    const prevButton = document.querySelector("#prevPage");
-    const nextButton = document.querySelector("#nextPage");
-    const pageInfo = document.querySelector("#pageInfo");
 
     // Initialize map in non-interactive mode
     this.#map = MapHelper.initMap(mapContainer, false);
@@ -81,24 +101,33 @@ class StoriesPage {
     // Initialize first page
     await loadStories(1);
 
-    // Handle pagination clicks
-    prevButton.addEventListener("click", async () => {
-      const currentPage = this.#presenter.getCurrentPage();
-      if (currentPage > 1) {
-        await loadStories(currentPage - 1);
-      }
-    });
-
-    nextButton.addEventListener("click", async () => {
-      const currentPage = this.#presenter.getCurrentPage();
-      await loadStories(currentPage + 1);
-    });
-
     // Ensure focus management if coming from skip link
     const mainContent = document.getElementById("mainContent");
     if (mainContent && window.location.hash === "#mainContent") {
       mainContent.focus();
     }
+  }
+
+  showStories(stories) {
+    const storiesContainer = document.getElementById("stories");
+    storiesContainer.innerHTML = stories
+      .map((story) => this._createStoryCard(story))
+      .join("");
+  }
+
+  showOfflineMessage() {
+    const offlineMessage = document.getElementById("offlineMessage");
+    offlineMessage.style.display = "block";
+  }
+
+  showError(message) {
+    const storiesContainer = document.getElementById("stories");
+    storiesContainer.innerHTML = `
+      <div class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        ${message}
+      </div>
+    `;
   }
 
   _createStoryCard(story) {
@@ -110,9 +139,11 @@ class StoriesPage {
         <div class="story-item__content">
           <h2 class="story-item__title">${story.name}</h2>
           <p class="story-item__description">${story.description}</p>
-          <p class="story-item__date"><i class="far fa-calendar-alt"></i> ${showFormattedDate(
-            story.createdAt
-          )}</p>
+          <p class="story-item__date">
+            <i class="far fa-calendar-alt"></i> ${showFormattedDate(
+              story.createdAt
+            )}
+          </p>
           <a href="#/stories/${story.id}" class="read-more-button">
             Selengkapnya <i class="fas fa-arrow-right"></i>
           </a>

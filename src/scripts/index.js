@@ -2,14 +2,14 @@
 import "../styles/styles.css";
 
 import App from "./pages/app";
-import Navbar from "./components/navbar";
+import Navigation from "./pages/navigation";
 import SkipToContentInitiator from "./utils/skip-to-content-initiator";
 
 document.addEventListener("DOMContentLoaded", async () => {
   // Initialize Skip to Content feature
   SkipToContentInitiator.init({
     skipLinkId: "skip-to-content",
-    mainContentId: "main-content", // Using your existing main-content ID
+    mainContentId: "main-content",
   });
 
   const app = new App({
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // Initialize navigation
-  Navbar.init();
+  const navigation = new Navigation();
 
   await app.renderPage();
 
